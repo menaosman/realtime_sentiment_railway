@@ -49,6 +49,7 @@
             path: "https://assets2.lottiefiles.com/packages/lf20_puciaact.json"
         });
     </script>
+
     <div class="mt-4">
         <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
         <ul>
@@ -61,15 +62,35 @@
         </ul>
     </div>
 
+    <!-- Feature Buttons (Organized Layout) -->
+    <div class="container my-5 text-center">
+        <h3>🚀 Quick Actions</h3>
+        <div class="row justify-content-center mt-4">
 
-    <!-- Feature Buttons -->
-    <div class="text-center my-4">
-        <button class="btn btn-primary m-2" onclick="loadData()">📋 Load Tweets Table</button>
-        <button class="btn btn-warning m-2" onclick="loadSentimentChart()">📈 Visual Analytics</button>
-        <button class="btn btn-dark m-2" onclick="loadWordCloud()">☁️ WordCloud</button>
-        <button class="btn btn-outline-dark m-2" onclick="downloadCSV()">📤 Download CSV</button>
-        <button class="btn btn-success m-2" onclick="pushToMongo()">📦 Upload to MongoDB</button>
-        <button class="btn btn-info m-2" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
+            <div class="col-md-4 my-2">
+                <button class="btn btn-primary w-100" onclick="loadData()">📋 Load Tweets Table</button>
+            </div>
+
+            <div class="col-md-4 my-2">
+                <button class="btn btn-warning w-100" onclick="loadSentimentChart()">📈 Visual Analytics</button>
+            </div>
+
+            <div class="col-md-4 my-2">
+                <button class="btn btn-dark w-100" onclick="loadWordCloud()">☁️ Generate WordCloud</button>
+            </div>
+
+            <div class="col-md-4 my-2">
+                <button class="btn btn-outline-dark w-100" onclick="downloadCSV()">📤 Download CSV</button>
+            </div>
+
+            <div class="col-md-4 my-2">
+                <button class="btn btn-success w-100" onclick="pushToMongo()">📦 Upload to MongoDB</button>
+            </div>
+
+            <div class="col-md-4 my-2">
+                <button class="btn btn-info w-100" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
+            </div>
+        </div>
     </div>
 
     <!-- WordCloud Section -->
@@ -185,7 +206,6 @@
         document.body.classList.toggle('dark-mode');
     }
 
-    // Initial load
     loadData();
     loadWordCloud();
     loadSentimentChart();
