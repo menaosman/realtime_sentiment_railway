@@ -23,6 +23,19 @@ def home():
         "negative": "😠 Negative"
     })
     return render_template("dashboard.html", tweets=df.to_dict("records"))
+@app.route('/api/upload_csv', methods=['POST'])
+def upload_csv():
+    try:
+        if 'file' not in request.files:
+            return jsonify({"status": "error", "message": "No file uploaded."})
+        file = request.files['file']
+        df = pd.read_csv(file)
+        df["BatchTimestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+        collection.insert_many(df.to_dict("records"))
+        return jsonify({"status": "success", "message": f"Uploaded {len(df)} records."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 
 @app.route('/api/download')
 def download_csv():
