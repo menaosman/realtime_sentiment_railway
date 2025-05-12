@@ -4,4 +4,7 @@ pandas
 vaderSentiment
 kafka-python
 gunicorn
- 
+matplotlib
+seaborn
+wordcloud
+
