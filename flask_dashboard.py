@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from io import BytesIO
 from datetime import datetime
-import base64
 import os
 
 app = Flask(__name__)
@@ -33,10 +32,8 @@ def wordcloud_image():
         texts = [doc.get('Text', '') for doc in collection.find({}, {"Text": 1, "_id": 0})]
         if not texts:
             return jsonify({"status": "error", "message": "No text data found."})
-
         combined_text = ' '.join(texts)
         wc = WordCloud(width=800, height=400, background_color='white').generate(combined_text)
-
         img_io = BytesIO()
         wc.to_image().save(img_io, 'PNG')
         img_io.seek(0)
@@ -57,13 +54,29 @@ def sentiment_distribution():
 def upload_to_mongo():
     try:
         data = request.get_json()
-        collection.delete_many({})  # Clear existing data before upload
         if data:
+            batch_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            for record in data:
+                record["BatchTimestamp"] = batch_time
             collection.insert_many(data)
-            return jsonify({"status": "success", "message": f"Uploaded {len(data)} records."})
+            return jsonify({"status": "success", "message": f"Uploaded {len(data)} records with batch timestamp {batch_time}."})
         return jsonify({"status": "error", "message": "No data provided."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/api/batches', methods=['GET'])
+def get_batches():
+    try:
+        batches = collection.distinct("BatchTimestamp")
+        return jsonify(sorted(batches, reverse=True))
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/api/fetch_batch', methods=['POST'])
+def fetch_by_batch():
+    batch_time = request.json.get("BatchTimestamp")
+    data = list(collection.find({"BatchTimestamp": batch_time}, {"_id": 0}))
+    return jsonify(data)
 
 @app.route('/api/download')
 def download_csv():
