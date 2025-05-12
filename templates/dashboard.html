@@ -2,23 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tweet Sentiment Analyzer</title>
+    <title>📊 Tweet Sentiment Analyzer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.0/lottie.min.js"></script>
     <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
         .theme-toggle {
             position: fixed;
             top: 20px;
             right: 20px;
         }
+        #lottie {
+            max-height: 300px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
+
 <body class="light-mode">
 
 <div class="container mt-5">
-    <h1 class="text-center">📊 Tweet Sentiment Analyzer</h1>
-    <div id="lottie" class="text-center" style="height:300px;"></div>
+    <h1 class="text-center mb-4">📊 Tweet Sentiment Analyzer</h1>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="btn btn-outline-primary" onclick="toggleTheme()">🌗 Toggle Theme</button>
+    </div>
+
+    <!-- Lottie Animation -->
+    <div id="lottie" class="text-center"></div>
     <script>
         lottie.loadAnimation({
             container: document.getElementById('lottie'),
@@ -28,13 +49,6 @@
             path: "https://assets2.lottiefiles.com/packages/lf20_puciaact.json"
         });
     </script>
-
-    <div class="theme-toggle">
-        <button class="btn btn-outline-primary" onclick="toggleTheme()">🌗 Toggle Theme</button>
-    </div>
-
-
-
     <div class="mt-4">
         <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
         <ul>
@@ -47,17 +61,15 @@
         </ul>
     </div>
 
-    <!-- Message Banner -->
-    <div id="messageBanner" class="alert text-center" style="display:none;"></div>
 
     <!-- Feature Buttons -->
     <div class="text-center my-4">
-        <button class="btn btn-primary m-2" onclick="loadData()">📋 Tweets Table</button>
+        <button class="btn btn-primary m-2" onclick="loadData()">📋 Load Tweets Table</button>
         <button class="btn btn-warning m-2" onclick="loadSentimentChart()">📈 Visual Analytics</button>
         <button class="btn btn-dark m-2" onclick="loadWordCloud()">☁️ WordCloud</button>
-        <button class="btn btn-outline-dark m-2" onclick="fetchFromMongo()">📤 Download</button>
-        <button class="btn btn-dark m-2" onclick="pushToMongo()">📦 MongoDB Upload</button>
-        <button class="btn btn-dark m-2" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
+        <button class="btn btn-outline-dark m-2" onclick="downloadCSV()">📤 Download CSV</button>
+        <button class="btn btn-success m-2" onclick="pushToMongo()">📦 Upload to MongoDB</button>
+        <button class="btn btn-info m-2" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
     </div>
 
     <!-- WordCloud Section -->
@@ -71,21 +83,21 @@
     <div class="mt-5">
         <h3>📈 Sentiment Distribution</h3>
         <canvas id="sentimentChart" style="max-height:400px;"></canvas>
-        <button class="btn btn-secondary mt-3" onclick="loadSentimentChart()">🔄 Refresh Chart</button>
     </div>
 
     <!-- Tweets Table Section -->
     <div class="feature-section mt-5">
         <h3>📋 Tweets Table</h3>
-        <input type="text" id="search" class="form-control mb-3" placeholder="Search tweets...">
-        <table class="table table-bordered">
+        <input type="text" id="search" class="form-control mb-3" placeholder="🔍 Search tweets...">
+        <table class="table table-bordered table-striped">
             <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
             <tbody id="tweetTable"></tbody>
         </table>
     </div>
 </div>
+
 <script>
- async function loadData() {
+    async function loadData() {
         const response = await fetch('/api/fetch');
         const tweets = await response.json();
         populateTable(tweets);
@@ -130,6 +142,37 @@
         });
     }
 
+    async function pushToMongo() {
+        const response = await fetch('/api/fetch');
+        const tweets = await response.json();
+
+        const result = await fetch('/api/upload', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tweets)
+        });
+
+        const resultData = await result.json();
+        alert(`📦 ${resultData.message}`);
+    }
+
+    async function fetchFromMongo() {
+        const response = await fetch('/api/fetch');
+        const data = await response.json();
+
+        if (data.length === 0) {
+            alert("📥 No data found in MongoDB.");
+            return;
+        }
+
+        populateTable(data);
+        alert(`📥 Fetched ${data.length} records from MongoDB.`);
+    }
+
+    function downloadCSV() {
+        window.location.href = "/api/download";
+    }
+
     document.getElementById("search").addEventListener("input", function () {
         const value = this.value.toLowerCase();
         const rows = document.querySelectorAll("#tweetTable tr");
@@ -139,13 +182,14 @@
     });
 
     function toggleTheme() {
-        const body = document.body;
-        body.classList.toggle('dark-mode');
+        document.body.classList.toggle('dark-mode');
     }
 
+    // Initial load
     loadData();
     loadWordCloud();
     loadSentimentChart();
 </script>
+
 </body>
 </html>
