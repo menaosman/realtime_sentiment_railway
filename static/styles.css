@@ -15,28 +15,15 @@ h1, h2 {
 .search-input {
     margin-bottom: 20px;
 }
- body {
-            transition: background-color 0.3s, color 0.3s;
-        }
-.dark-mode {background-color: #121212;
-            color: #ffffff;
-        }
+body { transition: background-color 0.3s, color 0.3s; }
+.dark-mode { background-color: #121212; color: #ffffff; }
 .feature-card {
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            padding: 20px;
-            margin: 20px 0;
-            background-color: #f8f9fa;
-        }
- .dark-mode .feature-card {
-            background-color: #1e1e1e;
-        }
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-        }
- #lottie {
-            max-height: 300px;
-            margin-bottom: 20px;
-        }
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 20px;
+    margin: 20px 0;
+    background-color: #f8f9fa;
+}
+.dark-mode .feature-card { background-color: #1e1e1e; }
+.theme-toggle { position: fixed; top: 20px; right: 20px; }
+#lottie { max-height: 300px; margin-bottom: 20px; }
