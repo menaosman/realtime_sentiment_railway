@@ -20,6 +20,7 @@
             path: "https://assets2.lottiefiles.com/packages/lf20_puciaact.json"
         });
     </script>
+
     <div class="mt-4">
         <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
         <ul>
@@ -37,16 +38,30 @@
 
     <!-- Feature Buttons -->
     <div class="text-center my-4">
-        <button class="btn btn-primary m-2" onclick="showSection('tweetsTableSection')">📋 Tweets Table</button>
-        <button class="btn btn-warning m-2" onclick="downloadCSV()">📈 Visual Analytics</button>
-        <button class="btn btn-dark m-2" onclick="pushToMongo()">☁️ WordClouds</button>
+        <button class="btn btn-primary m-2" onclick="loadData()">📋 Tweets Table</button>
+        <button class="btn btn-warning m-2" onclick="loadSentimentChart()">📈 Visual Analytics</button>
+        <button class="btn btn-dark m-2" onclick="loadWordCloud()">☁️ WordCloud</button>
         <button class="btn btn-outline-dark m-2" onclick="fetchFromMongo()">📤 Download</button>
         <button class="btn btn-dark m-2" onclick="pushToMongo()">📦 MongoDB Upload</button>
-        <button class="btn btn-dark m-2" onclick="pushToMongo()">📥 Fetch from MongoDB</button>
+        <button class="btn btn-dark m-2" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
+    </div>
+
+    <!-- WordCloud Section -->
+    <div class="text-center mt-5">
+        <h3>☁️ WordCloud</h3>
+        <img id="wordcloudImg" style="max-width: 100%; height: auto;" />
+        <button class="btn btn-secondary mt-3" onclick="loadWordCloud()">🔄 Refresh WordCloud</button>
+    </div>
+
+    <!-- Sentiment Distribution Chart -->
+    <div class="mt-5">
+        <h3>📈 Sentiment Distribution</h3>
+        <canvas id="sentimentChart" style="max-height:400px;"></canvas>
+        <button class="btn btn-secondary mt-3" onclick="loadSentimentChart()">🔄 Refresh Chart</button>
     </div>
 
     <!-- Tweets Table Section -->
-    <div id="tweetsTableSection" class="feature-section">
+    <div class="feature-section mt-5">
         <h3>📋 Tweets Table</h3>
         <input type="text" id="search" class="form-control mb-3" placeholder="Search tweets...">
         <table class="table table-bordered">
@@ -58,7 +73,7 @@
 
 <script>
     async function loadData() {
-        const response = await fetch('/data');
+        const response = await fetch('/api/fetch');
         const tweets = await response.json();
         populateTable(tweets);
     }
@@ -74,6 +89,36 @@
         });
     }
 
+    async function loadWordCloud() {
+        const response = await fetch('/api/wordcloud_image');
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            document.getElementById('wordcloudImg').src = url;
+        } else {
+            showMessage("❌ Failed to load WordCloud.", "danger");
+        }
+    }
+
+    async function loadSentimentChart() {
+        const response = await fetch('/api/sentiment_distribution');
+        const data = await response.json();
+
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        if (window.sentimentChart) window.sentimentChart.destroy(); 
+
+        window.sentimentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                }]
+            }
+        });
+    }
+
     function showMessage(message, type) {
         const banner = document.getElementById("messageBanner");
         banner.className = `alert alert-${type}`;
@@ -83,7 +128,7 @@
     }
 
     async function pushToMongo() {
-        const response = await fetch('/data');
+        const response = await fetch('/api/fetch');
         const tweets = await response.json();
 
         const result = await fetch('/api/upload', {
@@ -110,10 +155,6 @@
         showMessage(`📥 Fetched ${data.length} records from MongoDB.`, "success");
     }
 
-    function downloadCSV() {
-        window.location.href = "/api/download";
-    }
-
     document.getElementById("search").addEventListener("input", function () {
         const value = this.value.toLowerCase();
         const rows = document.querySelectorAll("#tweetTable tr");
@@ -123,6 +164,8 @@
     });
 
     loadData();
+    loadWordCloud();
+    loadSentimentChart();
 </script>
 </body>
 </html>
