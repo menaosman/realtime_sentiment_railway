@@ -2,7 +2,7 @@ body {
     background-color: #f7f9fc;
     font-family: 'Segoe UI', sans-serif;
 }
-h1 {
+h1, h2 {
     margin-top: 20px;
     text-align: center;
 }
