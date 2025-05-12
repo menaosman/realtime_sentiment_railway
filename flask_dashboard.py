@@ -16,7 +16,7 @@ collection = client["sentiment_analysis"]["tweets"]
 
 @app.route('/')
 def home():
-    return render_template('final_dashboard.html')
+    return render_template('dashboard.html')
 
 @app.route('/api/fetch', methods=['GET'])
 def fetch_from_mongo():
