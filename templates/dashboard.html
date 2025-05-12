@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,24 +21,49 @@
         });
     </script>
 
-    <div class="mt-4">
-        <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
-        <ul>
-            <li>✅ Detect sentiment (positive, neutral, negative)</li>
-            <li>☁️ Generate WordClouds</li>
-            <li>📈 Track sentiment trends over time</li>
-            <li>🔍 Filter tweets by keywords</li>
-            <li>📦 Push to MongoDB Atlas</li>
-            <li>📤 Upload to MongoDB</li>
-        </ul>
+    <!-- Feature Buttons -->
+    <div class="text-center my-4">
+        <h2>👋 Welcome to the <strong>Tweet Sentiment Analyzer</strong>!</h2>
+        <p>Select a feature to explore:</p>
+        <button class="btn btn-primary m-2" onclick="showSection('detectSentiment')">✅ Detect Sentiment</button>
+        <button class="btn btn-success m-2" onclick="showSection('sentimentTrends')">📈 Track Sentiment Trends</button>
+        <button class="btn btn-secondary m-2" onclick="showSection('tweetsTableSection')">📋 Tweets Table</button>
+        <button class="btn btn-info m-2" onclick="showSection('visualAnalytics')">📊 Visual Analytics</button>
+        <button class="btn btn-warning m-2" onclick="showSection('wordClouds')">☁️ WordClouds</button>
+        <button class="btn btn-outline-primary m-2" onclick="downloadCSV()">📤 Download CSV</button>
+        <button class="btn btn-dark m-2" onclick="pushToMongo()">📦 Upload to MongoDB</button>
+        <button class="btn btn-outline-dark m-2" onclick="fetchFromMongo()">📥 Fetch from MongoDB</button>
     </div>
 
-    <h3 class="mt-4">📋 Tweets Table</h3>
-    <input type="text" id="search" class="form-control mb-3" placeholder="Search tweets...">
-    <table class="table table-bordered">
-        <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
-        <tbody id="tweetTable"></tbody>
-    </table>
+    <!-- Hidden Sections -->
+    <div id="detectSentiment" class="feature-section" style="display:none;">
+        <h3>✅ Detect Sentiment</h3>
+        <canvas id="sentimentChart" height="150"></canvas>
+    </div>
+
+    <div id="sentimentTrends" class="feature-section" style="display:none;">
+        <h3>📈 Sentiment Trends</h3>
+        <!-- Add trend visualization here -->
+    </div>
+
+    <div id="tweetsTableSection" class="feature-section" style="display:none;">
+        <h3>📋 Tweets Table</h3>
+        <input type="text" id="search" class="form-control mb-3" placeholder="Search tweets...">
+        <table class="table table-bordered">
+            <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
+            <tbody id="tweetTable"></tbody>
+        </table>
+    </div>
+
+    <div id="visualAnalytics" class="feature-section" style="display:none;">
+        <h3>📊 Visual Analytics</h3>
+        <!-- Add advanced analytics here -->
+    </div>
+
+    <div id="wordClouds" class="feature-section" style="display:none;">
+        <h3>☁️ WordClouds</h3>
+        <!-- Add WordClouds here -->
+    </div>
 </div>
 
 <script>
@@ -54,6 +78,28 @@
             row.insertCell(1).innerText = tweet.Sentiment || "";
             row.insertCell(2).innerText = tweet.Timestamp || "";
         });
+
+        // Generate Sentiment Pie Chart
+        const counts = { positive: 0, neutral: 0, negative: 0 };
+        tweets.forEach(t => { if (t.Sentiment in counts) counts[t.Sentiment]++; });
+
+        const ctx = document.getElementById("sentimentChart").getContext("2d");
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["Positive", "Neutral", "Negative"],
+                datasets: [{
+                    data: [counts.positive, counts.neutral, counts.negative],
+                    backgroundColor: ["#28a745", "#ffc107", "#dc3545"]
+                }]
+            }
+        });
+    }
+
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll('.feature-section');
+        sections.forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
     }
 
     document.getElementById("search").addEventListener("input", function () {
@@ -63,6 +109,18 @@
             row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
         });
     });
+
+    function downloadCSV() {
+        window.location.href = "/api/download";
+    }
+
+    function pushToMongo() {
+        alert("📦 Upload to MongoDB triggered!");
+    }
+
+    function fetchFromMongo() {
+        alert("📥 Fetch from MongoDB triggered!");
+    }
 
     loadData();
 </script>
