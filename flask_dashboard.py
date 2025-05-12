@@ -57,6 +57,26 @@ def fetch_by_batch():
     batch = request.json.get("BatchTimestamp")
     cursor = collection.find({"BatchTimestamp": batch}, {"_id": 0})
     return jsonify(list(cursor))
+@app.route('/api/upload', methods=['POST'])
+def upload_to_mongo():
+    try:
+        data = request.get_json()
+        collection.delete_many({})  # Clear existing data before upload
+        if data:
+            collection.insert_many(data)
+            return jsonify({"status": "success", "message": f"Uploaded {len(data)} records."})
+        return jsonify({"status": "error", "message": "No data to upload."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/api/fetch', methods=['GET'])
+def fetch_from_mongo():
+    try:
+        data = list(collection.find({}, {"_id": 0}))
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
