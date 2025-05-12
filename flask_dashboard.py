@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from pymongo import MongoClient
 import pandas as pd
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from io import BytesIO
 from datetime import datetime
@@ -9,7 +8,6 @@ import os
 
 app = Flask(__name__)
 
-# MongoDB Configuration
 mongo_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongo_uri, tls=True, tlsAllowInvalidCertificates=True)
 collection = client["sentiment_analysis"]["tweets"]
@@ -20,11 +18,8 @@ def home():
 
 @app.route('/api/fetch', methods=['GET'])
 def fetch_from_mongo():
-    try:
-        data = list(collection.find({}, {"_id": 0}))
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    data = list(collection.find({}, {"_id": 0}))
+    return jsonify(data)
 
 @app.route('/api/wordcloud_image')
 def wordcloud_image():
@@ -33,7 +28,7 @@ def wordcloud_image():
     texts = [doc.get('Text', '') for doc in collection.find(query, {"Text": 1, "_id": 0})]
 
     if not texts or not ''.join(texts).strip():
-        return '', 204  # No content
+        return '', 204
 
     combined_text = ' '.join(texts)
     wc = WordCloud(width=800, height=400, background_color='white').generate(combined_text)
@@ -44,34 +39,25 @@ def wordcloud_image():
 
 @app.route('/api/sentiment_distribution')
 def sentiment_distribution():
-    try:
-        data = list(collection.find({}, {"Sentiment": 1, "_id": 0}))
-        sentiments = pd.DataFrame(data)["Sentiment"].value_counts().to_dict()
-        return jsonify(sentiments)
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    data = list(collection.find({}, {"Sentiment": 1, "_id": 0}))
+    sentiments = pd.DataFrame(data)["Sentiment"].value_counts().to_dict()
+    return jsonify(sentiments)
 
 @app.route('/api/upload', methods=['POST'])
 def upload_to_mongo():
-    try:
-        data = request.get_json()
-        if data:
-            batch_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            for record in data:
-                record["BatchTimestamp"] = batch_time
-            collection.insert_many(data)
-            return jsonify({"status": "success", "message": f"Uploaded {len(data)} records with batch timestamp {batch_time}."})
-        return jsonify({"status": "error", "message": "No data provided."})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    data = request.get_json()
+    if data:
+        batch_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for record in data:
+            record["BatchTimestamp"] = batch_time
+        collection.insert_many(data)
+        return jsonify({"status": "success", "message": f"Uploaded {len(data)} records with batch timestamp {batch_time}."})
+    return jsonify({"status": "error", "message": "No data provided."})
 
 @app.route('/api/batches', methods=['GET'])
 def get_batches():
-    try:
-        batches = collection.distinct("BatchTimestamp")
-        return jsonify(sorted(batches, reverse=True))
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    batches = collection.distinct("BatchTimestamp")
+    return jsonify(sorted(batches, reverse=True))
 
 @app.route('/api/fetch_batch', methods=['POST'])
 def fetch_by_batch():
@@ -81,15 +67,12 @@ def fetch_by_batch():
 
 @app.route('/api/download')
 def download_csv():
-    try:
-        data = list(collection.find({}, {"_id": 0}))
-        df = pd.DataFrame(data)
-        output = BytesIO()
-        df.to_csv(output, index=False)
-        output.seek(0)
-        return send_file(output, mimetype="text/csv", as_attachment=True, download_name="sentiment_results.csv")
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    data = list(collection.find({}, {"_id": 0}))
+    df = pd.DataFrame(data)
+    output = BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+    return send_file(output, mimetype="text/csv", as_attachment=True, download_name="sentiment_results.csv")
 
 if __name__ == '__main__':
     app.run(debug=True)
