@@ -29,28 +29,44 @@
     <!-- 🧾 Welcome Section with Buttons -->
     <div class="text-center my-4">
         <h2>👋 Welcome!</h2>
-        <p>Explore the features below:</p>
-        <button class="btn btn-primary m-2" onclick="downloadCSV()">📥 Download CSV</button>
-        <button class="btn btn-success m-2" onclick="pushToMongo()">📦 Push to MongoDB</button>
-        <button class="btn btn-info m-2" onclick="fetchBatches()">📥 Fetch from MongoDB</button>
+        <p>Upload your dataset to:</p>
+
+        <button class="btn btn-primary m-2" onclick="showSection('detectSentiment')">✅ Detect Sentiment</button>
+        <button class="btn btn-info m-2" onclick="showSection('generateWordCloud')">☁️ Generate WordClouds</button>
+        <button class="btn btn-success m-2" onclick="showSection('sentimentTrends')">📈 Track Sentiment Trends</button>
+        <button class="btn btn-warning m-2" onclick="showSection('filterTweets')">🔍 Filter Tweets by Keywords</button>
+        <button class="btn btn-secondary m-2" onclick="pushToMongo()">📦 Push to MongoDB Atlas</button>
+        <button class="btn btn-dark m-2" onclick="uploadToMongo()">📤 Upload to MongoDB</button>
     </div>
 
-    <!-- 🔍 Filter Input -->
-    <input type="text" id="search" class="form-control my-3" placeholder="🔍 Search tweets..."/>
+    <!-- 📋 Sections for Each Feature -->
+    <div id="detectSentiment" class="feature-section" style="display:none;">
+        <h3>📋 Sentiment Distribution</h3>
+        <canvas id="sentimentChart" height="150"></canvas>
+    </div>
 
-    <!-- 📈 Sentiment Chart -->
-    <h3>📈 Sentiment Distribution</h3>
-    <canvas id="sentimentChart" height="150"></canvas>
+    <div id="generateWordCloud" class="feature-section" style="display:none;">
+        <h3>☁️ WordClouds (coming soon)</h3>
+    </div>
 
-    <!-- 📋 Tweets Table with Show More -->
-    <h3 class="mt-5">📋 Tweets Table</h3>
+    <div id="sentimentTrends" class="feature-section" style="display:none;">
+        <h3>📈 Sentiment Trends (coming soon)</h3>
+    </div>
+
+    <div id="filterTweets" class="feature-section" style="display:none;">
+        <h3>🔍 Filter Tweets by Keywords</h3>
+        <input type="text" id="search" class="form-control my-3" placeholder="Search tweets..."/>
+    </div>
+
+    <!-- 📋 Tweets Table -->
+    <h3 class="mt-4">📋 Tweets Table</h3>
     <table class="table table-striped">
         <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
         <tbody id="tweetTable">
             {% for tweet in tweets[:20] %}
             <tr>
                 <td>{{ tweet['Text'] }}</td>
-                <td>{{ tweet['Sentiment (Emoji)'] }}</td>
+                <td>{{ tweet['Sentiment'] }}</td>
                 <td>{{ tweet['Timestamp'] }}</td>
             </tr>
             {% endfor %}
@@ -63,71 +79,61 @@
 
 <script>
     const tweets = {{ tweets | tojson }};
-    const searchInput = document.getElementById("search");
 
-    // ✅ Search Filtering
-    searchInput.addEventListener("input", function () {
-        const value = this.value.toLowerCase();
-        const rows = document.querySelectorAll("#tweetTable tr");
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(value) ? "" : "none";
-        });
-    });
-
-    // ✅ Show More Tweets
-    function showMoreTweets() {
-        const tweetTable = document.getElementById('tweetTable');
-        const additionalTweets = `
-            {% for tweet in tweets[20:] %}
-            <tr>
-                <td>{{ tweet['Text'] }}</td>
-                <td>{{ tweet['Sentiment (Emoji)'] }}</td>
-                <td>{{ tweet['Timestamp'] }}</td>
-            </tr>
-            {% endfor %}
-        `;
-        tweetTable.innerHTML += additionalTweets;
+    // Toggle sections
+    function showSection(sectionId) {
+        const sections = document.querySelectorAll('.feature-section');
+        sections.forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
     }
 
-    // ✅ Sentiment Pie Chart
-    const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
-    tweets.forEach(tweet => {
-        if (tweet.Sentiment in sentimentCounts) {
-            sentimentCounts[tweet.Sentiment]++;
-        }
+    // Sentiment Pie Chart
+    const counts = { positive: 0, neutral: 0, negative: 0 };
+    tweets.forEach(t => {
+        if (t.Sentiment in counts) counts[t.Sentiment]++;
     });
-
     const ctx = document.getElementById("sentimentChart").getContext("2d");
     new Chart(ctx, {
         type: "pie",
         data: {
             labels: ["Positive", "Neutral", "Negative"],
             datasets: [{
-                data: [sentimentCounts.positive, sentimentCounts.neutral, sentimentCounts.negative],
+                data: [counts.positive, counts.neutral, counts.negative],
                 backgroundColor: ["#28a745", "#ffc107", "#dc3545"]
             }]
         }
     });
 
-    // ✅ API Integrations for Buttons
-    function downloadCSV() {
-        window.location.href = "/api/download";
+    // Show More Tweets
+    function showMoreTweets() {
+        const tweetTable = document.getElementById('tweetTable');
+        const moreRows = `
+            {% for tweet in tweets[20:] %}
+            <tr>
+                <td>{{ tweet['Text'] }}</td>
+                <td>{{ tweet['Sentiment'] }}</td>
+                <td>{{ tweet['Timestamp'] }}</td>
+            </tr>
+            {% endfor %}
+        `;
+        tweetTable.innerHTML += moreRows;
     }
 
+    // Search Filter
+    document.getElementById("search").addEventListener("input", function () {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#tweetTable tr");
+        rows.forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+        });
+    });
+
+    // MongoDB Push and Upload Placeholder Functions
     function pushToMongo() {
-        fetch("/api/push_mongo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tweets)
-        }).then(response => response.json())
-          .then(data => alert(`📦 ${data.status}: ${data.count || data.message}`));
+        alert("📦 Push to MongoDB - Functionality coming soon.");
     }
-
-    function fetchBatches() {
-        fetch("/api/fetch_batches")
-            .then(response => response.json())
-            .then(batches => alert(`📥 Available Batches:\n${batches.join("\n")}`));
+    function uploadToMongo() {
+        alert("📤 Upload to MongoDB - Functionality coming soon.");
     }
 </script>
 </body>
