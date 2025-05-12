@@ -84,9 +84,8 @@
         </table>
     </div>
 </div>
-
 <script>
-    async function loadData() {
+ async function loadData() {
         const response = await fetch('/api/fetch');
         const tweets = await response.json();
         populateTable(tweets);
@@ -109,8 +108,6 @@
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             document.getElementById('wordcloudImg').src = url;
-        } else {
-            showMessage("❌ Failed to load WordCloud.", "danger");
         }
     }
 
@@ -119,10 +116,10 @@
         const data = await response.json();
 
         const ctx = document.getElementById('sentimentChart').getContext('2d');
-        if (window.sentimentChart) window.sentimentChart.destroy(); 
+        if (window.sentimentChart) window.sentimentChart.destroy();
 
         window.sentimentChart = new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: Object.keys(data),
                 datasets: [{
@@ -133,42 +130,6 @@
         });
     }
 
-    function showMessage(message, type) {
-        const banner = document.getElementById("messageBanner");
-        banner.className = `alert alert-${type}`;
-        banner.innerText = message;
-        banner.style.display = "block";
-        setTimeout(() => banner.style.display = "none", 3000);
-    }
-
-    async function pushToMongo() {
-        const response = await fetch('/api/fetch');
-        const tweets = await response.json();
-
-        const result = await fetch('/api/upload', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tweets)
-        });
-
-        const resultData = await result.json();
-        const alertType = resultData.status === "success" ? "success" : "danger";
-        showMessage(`📦 ${resultData.message}`, alertType);
-    }
-
-    async function fetchFromMongo() {
-        const response = await fetch('/api/fetch');
-        const data = await response.json();
-
-        if (data.length === 0) {
-            showMessage("📥 No data found in MongoDB.", "warning");
-            return;
-        }
-
-        populateTable(data);
-        showMessage(`📥 Fetched ${data.length} records from MongoDB.`, "success");
-    }
-
     document.getElementById("search").addEventListener("input", function () {
         const value = this.value.toLowerCase();
         const rows = document.querySelectorAll("#tweetTable tr");
@@ -176,6 +137,11 @@
             row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
         });
     });
+
+    function toggleTheme() {
+        const body = document.body;
+        body.classList.toggle('dark-mode');
+    }
 
     loadData();
     loadWordCloud();
