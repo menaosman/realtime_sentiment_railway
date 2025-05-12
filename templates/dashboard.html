@@ -12,10 +12,10 @@
 <body>
 
 <div class="container">
-    <h1 class="text-center">📊 Tweet Sentiment Analyzer</h1>
+    <h1 class="text-center my-4">📊 Tweet Sentiment Analyzer</h1>
 
-    <!-- 🔄 Lottie Animation from URL -->
-    <div id="lottie" style="height:300px;" class="my-4"></div>
+    <!-- 🔄 Lottie Animation -->
+    <div id="lottie" style="height:300px;"></div>
     <script>
         lottie.loadAnimation({
             container: document.getElementById('lottie'),
@@ -26,50 +26,46 @@
         });
     </script>
 
-    <!-- 🧾 Welcome Message with Feature Buttons -->
+    <!-- 🧾 Welcome Section with Buttons -->
     <div class="text-center my-4">
-        <h2>👋 Welcome to the <strong>Tweet Sentiment Analyzer</strong>!</h2>
-        <p>Upload your dataset to explore the following features:</p>
-
-        <button class="btn btn-primary m-2" onclick="showSection('sentimentAnalysis')">✅ Detect Sentiment</button>
-        <button class="btn btn-info m-2" onclick="showSection('wordClouds')">☁️ Generate WordClouds</button>
-        <button class="btn btn-success m-2" onclick="showSection('sentimentTrends')">📈 Sentiment Trends</button>
-        <button class="btn btn-warning m-2" onclick="showSection('filterTweets')">🔍 Filter Tweets</button>
-        <button class="btn btn-secondary m-2" onclick="showSection('pushMongo')">📦 Push to MongoDB</button>
-        <button class="btn btn-dark m-2" onclick="showSection('uploadMongo')">📤 Upload to MongoDB</button>
+        <h2>👋 Welcome!</h2>
+        <p>Explore the features below:</p>
+        <button class="btn btn-primary m-2" onclick="downloadCSV()">📥 Download CSV</button>
+        <button class="btn btn-success m-2" onclick="pushToMongo()">📦 Push to MongoDB</button>
+        <button class="btn btn-info m-2" onclick="fetchBatches()">📥 Fetch from MongoDB</button>
     </div>
 
-    <!-- 📈 Sentiment Pie Chart Section -->
-    <div id="sentimentAnalysis" class="feature-section" style="display:none;">
-        <h3>📋 Sentiment Distribution</h3>
-        <canvas id="sentimentChart" height="150"></canvas>
-    </div>
+    <!-- 🔍 Filter Input -->
+    <input type="text" id="search" class="form-control my-3" placeholder="🔍 Search tweets..."/>
 
-    <!-- 📋 Tweets Table with Pagination -->
-    <h3 class="mt-5">📋 Tweets Data</h3>
-    <input type="text" id="search" class="form-control my-3" placeholder="Search tweets..."/>
+    <!-- 📈 Sentiment Chart -->
+    <h3>📈 Sentiment Distribution</h3>
+    <canvas id="sentimentChart" height="150"></canvas>
 
+    <!-- 📋 Tweets Table with Show More -->
+    <h3 class="mt-5">📋 Tweets Table</h3>
     <table class="table table-striped">
         <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
         <tbody id="tweetTable">
             {% for tweet in tweets[:20] %}
             <tr>
                 <td>{{ tweet['Text'] }}</td>
-                <td>{{ tweet['Sentiment'] }}</td>
+                <td>{{ tweet['Sentiment (Emoji)'] }}</td>
                 <td>{{ tweet['Timestamp'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
     <div class="text-center">
         <button class="btn btn-outline-primary" onclick="showMoreTweets()">Show More Tweets</button>
     </div>
 </div>
 
 <script>
-    // ✅ Search Filtering
+    const tweets = {{ tweets | tojson }};
     const searchInput = document.getElementById("search");
+
+    // ✅ Search Filtering
     searchInput.addEventListener("input", function () {
         const value = this.value.toLowerCase();
         const rows = document.querySelectorAll("#tweetTable tr");
@@ -79,8 +75,22 @@
         });
     });
 
+    // ✅ Show More Tweets
+    function showMoreTweets() {
+        const tweetTable = document.getElementById('tweetTable');
+        const additionalTweets = `
+            {% for tweet in tweets[20:] %}
+            <tr>
+                <td>{{ tweet['Text'] }}</td>
+                <td>{{ tweet['Sentiment (Emoji)'] }}</td>
+                <td>{{ tweet['Timestamp'] }}</td>
+            </tr>
+            {% endfor %}
+        `;
+        tweetTable.innerHTML += additionalTweets;
+    }
+
     // ✅ Sentiment Pie Chart
-    const tweets = {{ tweets | tojson }};
     const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
     tweets.forEach(tweet => {
         if (tweet.Sentiment in sentimentCounts) {
@@ -100,26 +110,24 @@
         }
     });
 
-    // ✅ Feature Section Toggle
-    function showSection(sectionId) {
-        const sections = document.querySelectorAll('.feature-section');
-        sections.forEach(sec => sec.style.display = 'none');
-        document.getElementById(sectionId).style.display = 'block';
+    // ✅ API Integrations for Buttons
+    function downloadCSV() {
+        window.location.href = "/api/download";
     }
 
-    // ✅ Show More Tweets
-    function showMoreTweets() {
-        const tweetTable = document.getElementById('tweetTable');
-        const additionalTweets = `
-            {% for tweet in tweets[20:] %}
-            <tr>
-                <td>{{ tweet['Text'] }}</td>
-                <td>{{ tweet['Sentiment'] }}</td>
-                <td>{{ tweet['Timestamp'] }}</td>
-            </tr>
-            {% endfor %}
-        `;
-        tweetTable.innerHTML += additionalTweets;
+    function pushToMongo() {
+        fetch("/api/push_mongo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tweets)
+        }).then(response => response.json())
+          .then(data => alert(`📦 ${data.status}: ${data.count || data.message}`));
+    }
+
+    function fetchBatches() {
+        fetch("/api/fetch_batches")
+            .then(response => response.json())
+            .then(batches => alert(`📥 Available Batches:\n${batches.join("\n")}`));
     }
 </script>
 </body>
