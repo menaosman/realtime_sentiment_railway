@@ -1,0 +1,6 @@
+Flask
+pymongo
+pandas
+vaderSentiment
+kafka-python
+gunicorn
