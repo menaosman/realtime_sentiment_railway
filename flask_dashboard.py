@@ -16,7 +16,7 @@ collection = client["sentiment_analysis"]["tweets"]
 
 @app.route('/')
 def home():
-    return render_template('dashboard.html')
+    return render_template('final_dashboard.html')
 
 @app.route('/api/fetch', methods=['GET'])
 def fetch_from_mongo():
@@ -28,18 +28,19 @@ def fetch_from_mongo():
 
 @app.route('/api/wordcloud_image')
 def wordcloud_image():
-    try:
-        texts = [doc.get('Text', '') for doc in collection.find({}, {"Text": 1, "_id": 0})]
-        if not texts:
-            return jsonify({"status": "error", "message": "No text data found."})
-        combined_text = ' '.join(texts)
-        wc = WordCloud(width=800, height=400, background_color='white').generate(combined_text)
-        img_io = BytesIO()
-        wc.to_image().save(img_io, 'PNG')
-        img_io.seek(0)
-        return send_file(img_io, mimetype='image/png', as_attachment=False)
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    sentiment = request.args.get('sentiment')
+    query = {"Sentiment": sentiment} if sentiment else {}
+    texts = [doc.get('Text', '') for doc in collection.find(query, {"Text": 1, "_id": 0})]
+
+    if not texts or not ''.join(texts).strip():
+        return '', 204  # No content
+
+    combined_text = ' '.join(texts)
+    wc = WordCloud(width=800, height=400, background_color='white').generate(combined_text)
+    img_io = BytesIO()
+    wc.to_image().save(img_io, 'PNG')
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/png')
 
 @app.route('/api/sentiment_distribution')
 def sentiment_distribution():
