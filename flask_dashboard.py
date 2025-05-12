@@ -21,7 +21,15 @@ def home():
 @app.route('/api/fetch', methods=['GET'])
 def fetch_from_mongo():
     try:
-        data = list(collection.find({}, {"_id": 0}))
+        # Get optional query parameters for pagination
+        page = int(request.args.get('page', 1))  # Default to page 1
+        limit = int(request.args.get('limit', 100))  # Default to 100 records per page
+
+        # Calculate how many records to skip
+        skip = (page - 1) * limit
+
+        # Fetch paginated data
+        data = list(collection.find({}, {"_id": 0}).skip(skip).limit(limit))
         return jsonify(data)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
