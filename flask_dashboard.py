@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from pymongo import MongoClient
 import pandas as pd
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from io import BytesIO
 from datetime import datetime
@@ -10,25 +9,20 @@ import os
 app = Flask(__name__)
 
 # MongoDB Configuration
-mongo_uri = os.getenv("MONGO_URI")
+mongo_uri = os.getenv("MONGO_URI", "your_mongo_uri_here")  # Add your default URI or keep it from environment
 client = MongoClient(mongo_uri, tls=True, tlsAllowInvalidCertificates=True)
 collection = client["sentiment_analysis"]["tweets"]
 
 @app.route('/')
 def home():
-    return render_template('dashboard.html')  # Ensure this matches your HTML file name
+    return render_template('dashboard.html')  # Ensure this HTML exists in templates/
 
 @app.route('/api/fetch', methods=['GET'])
 def fetch_from_mongo():
     try:
-        # Get optional query parameters for pagination
-        page = int(request.args.get('page', 1))  # Default to page 1
-        limit = int(request.args.get('limit', 100))  # Default to 100 records per page
-
-        # Calculate how many records to skip
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 100))
         skip = (page - 1) * limit
-
-        # Fetch paginated data
         data = list(collection.find({}, {"_id": 0}).skip(skip).limit(limit))
         return jsonify(data)
     except Exception as e:
@@ -41,7 +35,7 @@ def wordcloud_image():
     texts = [doc.get('Text', '') for doc in collection.find(query, {"Text": 1, "_id": 0})]
 
     if not texts or not ''.join(texts).strip():
-        return '', 204  # No content
+        return '', 204
 
     combined_text = ' '.join(texts)
     wc = WordCloud(width=800, height=400, background_color='white').generate(combined_text)
@@ -100,4 +94,4 @@ def download_csv():
         return jsonify({"status": "error", "message": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=8080)
