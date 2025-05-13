@@ -20,6 +20,18 @@
     <div class="theme-toggle">
         <button class="btn btn-outline-primary" onclick="toggleTheme()">🌗 Toggle Theme</button>
     </div>
+     <div class="mt-4">
+        <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
+        <ul>
+            <li>✅ Detect sentiment (positive, neutral, negative)</li>
+            <li>☁️ Generate WordClouds</li>
+            <li>📈 Track sentiment trends over time</li>
+            <li>🔍 Filter tweets by keywords</li>
+            <li>📦 Push to MongoDB Atlas</li>
+            <li>📤 Upload to MongoDB</li>
+        </ul>
+    </div>
+
     <h1 class="text-center mb-2">📊 Tweet Sentiment Analyzer</h1>
     <div class="text-center"><div id="lottie"></div></div>
     <script>
@@ -240,6 +252,27 @@ async function loadSentimentBarChart() {
         }
     });
 }
+async function loadSentimentChart() {
+    const response = await fetch('/api/sentiment_distribution');
+    const data = await response.json();
+
+    const ctx = document.getElementById('sentimentChart').getContext('2d');
+    if (window.sentimentChart) window.sentimentChart.destroy();
+    window.sentimentChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(data),
+            datasets: [{
+                label: 'Sentiment Distribution',
+                data: Object.values(data),
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
 
 function downloadCSV() {
     window.location.href = "/api/download";
@@ -257,16 +290,19 @@ function toggleTheme() {
 }
 
 document.querySelector('[data-bs-target="#chartTab"]').addEventListener('click', function () {
-   loadSentimentBarChart();
-loadSentimentOverTimeChart();
-  // ✅ Add this to load the "Sentiment Over Time" chart.
+    loadSentimentChart();  // ✅ Add This
+    loadSentimentBarChart();
+    loadSentimentOverTimeChart();
 });
+
 
  
 // Initial Loads
 loadData();
 loadWordCloudsBySentiment();
 loadBatchOptions();
+loadSentimentChart();  // ✅ Add This
+
 
 
 </script>
