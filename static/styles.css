@@ -11,8 +11,8 @@ body {
 }
 
 #lottie {
-    height: 200px;
-    margin: 0 auto 20px auto;
+    height: 300px;
+    margin: 0 auto 30px auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,6 +26,8 @@ body {
 .tab-content {
     text-align: left;
 }
+.dark-mode .feature-card { background-color: #1e1e1e; }
+.theme-toggle { position: fixed; top: 20px; right: 20px; }
 
 .fetched-data-header {
     text-align: center;
