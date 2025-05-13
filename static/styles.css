@@ -1,32 +1,45 @@
-/* Welcome Section Enhancement */
-#welcomeSection {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin: 30px auto;
-    max-width: 700px;
-    text-align: center;
-}
-
-.dark-mode #welcomeSection {
-    background-color: #1e1e1e;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
-#welcomeSection h5 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-
-#welcomeSection ul {
-    text-align: left;
-    display: inline-block;
-    margin: 0 auto;
-}
 body {
     background-color: #f7f9fc !important;
     font-family: 'Segoe UI', sans-serif !important;
     transition: background-color 0.3s, color 0.3s !important;
     margin: 0 !important;
+}
+
+.dark-mode {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#welcomeSection {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.nav-tabs .nav-link {
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+}
+
+#search {
+    margin: 0 auto 20px auto;
+    max-width: 600px;
+}
+
+.table {
+    margin: 0 auto;
+    text-align: center;
 }
