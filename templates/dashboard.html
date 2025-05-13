@@ -19,18 +19,7 @@
 <div class="container mt-3">
     <div class="theme-toggle">
         <button class="btn btn-outline-primary" onclick="toggleTheme()">🌗 Toggle Theme</button>
-    </div>
-     <div class="mt-4">
-        <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
-        <ul>
-            <li>✅ Detect sentiment (positive, neutral, negative)</li>
-            <li>☁️ Generate WordClouds</li>
-            <li>📈 Track sentiment trends over time</li>
-            <li>🔍 Filter tweets by keywords</li>
-            <li>📦 Push to MongoDB Atlas</li>
-            <li>📤 Upload to MongoDB</li>
-        </ul>
-    </div>
+  
 
     <h1 class="text-center mb-2">📊 Tweet Sentiment Analyzer</h1>
     <div class="text-center"><div id="lottie"></div></div>
@@ -43,7 +32,18 @@
             path: "https://assets2.lottiefiles.com/packages/lf20_puciaact.json"
         });
     </script>
-
+  </div>
+     <div class="mt-4">
+        <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
+        <ul>
+            <li>✅ Detect sentiment (positive, neutral, negative)</li>
+            <li>☁️ Generate WordClouds</li>
+            <li>📈 Track sentiment trends over time</li>
+            <li>🔍 Filter tweets by keywords</li>
+            <li>📦 Push to MongoDB Atlas</li>
+            <li>📤 Upload to MongoDB</li>
+        </ul>
+    </div>
     <ul class="nav nav-tabs mt-3" id="mainTabs" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tableTab">📋 Tweets Table</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chartTab">📈 Visual Analytics</button></li>
@@ -114,6 +114,9 @@
 </div>
 
 <script>
+let sentimentChart = null;
+let sentimentBarChart = null;
+let sentimentOverTimeChart = null;
 let currentPage = 1;
 const recordsPerPage = 100;
 
@@ -151,8 +154,9 @@ async function loadSentimentOverTimeChart() {
     if (data.status === "error" || !data.dates) return;
 
     const ctx = document.getElementById('sentimentOverTimeChart').getContext('2d');
-    if (window.sentimentOverTimeChart) window.sentimentOverTimeChart.destroy();
-    window.sentimentOverTimeChart = new Chart(ctx, {
+    if (sentimentOverTimeChart && typeof sentimentOverTimeChart.destroy === 'function') {
+    sentimentOverTimeChart.destroy();}
+    sentimentOverTimeChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.dates,
@@ -239,8 +243,10 @@ async function loadSentimentBarChart() {
     const data = await response.json();
 
     const ctx3 = document.getElementById('sentimentBarChart').getContext('2d');
-    if (window.sentimentBarChart) window.sentimentBarChart.destroy();
-    window.sentimentBarChart = new Chart(ctx3, {
+    if (sentimentBarChart && typeof sentimentBarChart.destroy === 'function') {
+    sentimentBarChart.destroy();}
+
+    sentimentBarChart = new Chart(ctx3, {
         type: 'bar',
         data: {
             labels: Object.keys(data),
@@ -257,8 +263,9 @@ async function loadSentimentChart() {
     const data = await response.json();
 
     const ctx = document.getElementById('sentimentChart').getContext('2d');
-    if (window.sentimentChart) window.sentimentChart.destroy();
-    window.sentimentChart = new Chart(ctx, {
+    if (sentimentChart && typeof sentimentChart.destroy === 'function') {
+     sentimentChart.destroy();}
+    sentimentChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: Object.keys(data),
