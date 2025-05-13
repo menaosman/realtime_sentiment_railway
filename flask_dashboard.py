@@ -121,6 +121,9 @@ def sentiment_over_time():
         return jsonify(result)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+@app.route('/api/health')
+def health_check():
+    return jsonify({"status": "ok"})
 
 
 if __name__ == '__main__':
