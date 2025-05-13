@@ -93,6 +93,35 @@ def download_csv():
         return send_file(output, mimetype="text/csv", as_attachment=True, download_name="sentiment_results.csv")
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+@app.route('/api/sentiment_over_time')
+def sentiment_over_time():
+    try:
+        data = list(collection.find({}, {"Sentiment": 1, "Timestamp": 1, "_id": 0}))
+        df = pd.DataFrame(data)
+
+        if "Timestamp" not in df or df.empty:
+            return jsonify({"status": "error", "message": "No timestamp data available."})
+
+        # Ensure Timestamp is in datetime format
+        df["Timestamp"] = pd.to_datetime(df["Timestamp"], errors='coerce')
+        df = df.dropna(subset=["Timestamp"])
+
+        # Group by Date and Sentiment
+        df["Date"] = df["Timestamp"].dt.date
+        sentiment_time = df.groupby(["Date", "Sentiment"]).size().unstack(fill_value=0).reset_index()
+
+        # Convert to JSON-friendly format
+        result = {
+            "dates": sentiment_time["Date"].astype(str).tolist(),
+            "positive": sentiment_time.get("positive", pd.Series()).tolist(),
+            "neutral": sentiment_time.get("neutral", pd.Series()).tolist(),
+            "negative": sentiment_time.get("negative", pd.Series()).tolist()
+        }
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080, debug=True)
