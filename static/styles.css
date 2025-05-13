@@ -24,3 +24,9 @@
     display: inline-block;
     margin: 0 auto;
 }
+body {
+    background-color: #f7f9fc !important;
+    font-family: 'Segoe UI', sans-serif !important;
+    transition: background-color 0.3s, color 0.3s !important;
+    margin: 0 !important;
+}
