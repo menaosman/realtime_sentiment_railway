@@ -1,29 +1,51 @@
-body {
-    background-color: #f7f9fc;
-    font-family: 'Segoe UI', sans-serif;
+/* Center Welcome Section */
+#welcomeSection {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
-h1, h2 {
-    margin-top: 20px;
+
+/* Navigation Tabs Styling */
+.nav-tabs .nav-link {
+    font-size: 1rem;
+    padding: 0.5rem 1.2rem;
+}
+
+/* Center Search Input and Limit Width */
+#search {
+    margin: 0 auto 20px auto;
+    max-width: 600px;
     text-align: center;
 }
-.container {
-    margin-top: 30px;
-}
+
+/* Center the Table and Adjust Width */
 .table {
-    background-color: white;
+    margin: 0 auto;
+    width: auto;
+    text-align: center;
 }
-.search-input {
-    margin-bottom: 20px;
+
+/* Chart Centering */
+canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 600px;
+    height: auto;
 }
-body { transition: background-color 0.3s, color 0.3s; }
-.dark-mode { background-color: #121212; color: #ffffff; }
-.feature-card {
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    padding: 20px;
-    margin: 20px 0;
-    background-color: #f8f9fa;
+
+/* Dark Mode for Table and Cards */
+.dark-mode .table {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #333333;
 }
-.dark-mode .feature-card { background-color: #1e1e1e; }
-.theme-toggle { position: fixed; top: 20px; right: 20px; }
-#lottie { max-height: 300px; margin-bottom: 20px; }
+
+.dark-mode .nav-tabs .nav-link {
+    color: #ffffff;
+}
+
+.dark-mode #search {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border-color: #444444;
+}
