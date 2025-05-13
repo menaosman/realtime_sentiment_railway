@@ -172,6 +172,8 @@ async function loadSentimentOverTimeChart() {
 async function loadWordCloudsBySentiment() {
     const sentiments = ["positive", "neutral", "negative"];
     const container = document.getElementById("wordcloudsBySentiment");
+    container.innerHTML = `<div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
     container.innerHTML = "<p>Loading word clouds...</p>";  // ✅ Add this line here
     for (const sentiment of sentiments) {
         const response = await fetch(`/api/wordcloud_image?sentiment=${sentiment}`);
