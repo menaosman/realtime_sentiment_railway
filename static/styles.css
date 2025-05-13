@@ -26,8 +26,6 @@ body {
 .tab-content {
     text-align: left;
 }
-.dark-mode .feature-card { background-color: #1e1e1e; }
-.theme-toggle { position: fixed; top: 20px; right: 20px; }
 
 .fetched-data-header {
     text-align: center;
