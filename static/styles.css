@@ -11,8 +11,8 @@ body {
 }
 
 #lottie {
-    height: 300px;
-    margin: 0 auto 30px auto;
+    height: 200px;
+    margin: 0 auto 20px auto;
     display: flex;
     justify-content: center;
     align-items: center;
