@@ -16,15 +16,12 @@
     </style>
 </head>
 <body class="light-mode">
-
 <div class="container mt-3">
     <div class="theme-toggle">
         <button class="btn btn-outline-primary" onclick="toggleTheme()">🌗 Toggle Theme</button>
     </div>
     <h1 class="text-center mb-2">📊 Tweet Sentiment Analyzer</h1>
-    <div class="text-center">
-        <div id="lottie"></div>
-    </div>
+    <div class="text-center"><div id="lottie"></div></div>
     <script>
         lottie.loadAnimation({
             container: document.getElementById('lottie'),
@@ -39,9 +36,9 @@
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tableTab">📋 Tweets Table</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chartTab">📈 Visual Analytics</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#wordTab">☁️ WordCloud</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="downloadCSV()">📤 Download</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="pushToMongo()">📦 Upload</button></li>
-        <li class="nav-item"><button class="nav-link" onclick="fetchFromMongo()">📥 Fetch</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#downloadTab">📤 Download CSV</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#uploadTab">📦 Push to MongoDB</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fetchTab">📥 Fetch from MongoDB</button></li>
     </ul>
 
     <div class="tab-content mt-3" id="mainTabsContent">
@@ -52,6 +49,10 @@
                 <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
                 <tbody id="tweetTable"></tbody>
             </table>
+            <div class="text-center mt-3">
+                <button class="btn btn-primary" onclick="loadData(currentPage - 1)">⬅️ Previous</button>
+                <button class="btn btn-primary" onclick="loadData(currentPage + 1)">➡️ Next</button>
+            </div>
         </div>
 
         <!-- Visual Analytics Tab -->
@@ -65,23 +66,61 @@
             <div id="wordcloudsBySentiment" class="mt-4"></div>
             <button class="btn btn-secondary mt-3" onclick="loadWordCloudsBySentiment()">🔄 Refresh WordClouds</button>
         </div>
+
+        <!-- Download CSV Tab -->
+        <div class="tab-pane fade text-center" id="downloadTab">
+            <button class="btn btn-outline-dark mt-3" onclick="downloadCSV()">📥 Download CSV File</button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div class="tab-pane fade text-center" id="uploadTab">
+            <button class="btn btn-success mt-3" onclick="pushToMongo()">📦 Push to MongoDB</button>
+        </div>
+
+        <!-- Fetch Tab -->
+        <div class="tab-pane fade text-center" id="fetchTab">
+            <select id="batchSelect" class="form-select w-50 mx-auto mb-3">
+                <option selected disabled>Select Batch Timestamp</option>
+            </select>
+            <button class="btn btn-info" onclick="fetchByBatch()">📥 Fetch Selected Batch</button>
+            <div class="mt-4">
+                <h4>📋 Fetched Data</h4>
+                <table class="table table-bordered table-striped mt-3">
+                    <thead><tr><th>Text</th><th>Sentiment</th><th>Timestamp</th></tr></thead>
+                    <tbody id="fetchBatchTable"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-async function loadData() {
-    const response = await fetch('/api/fetch?page=1&limit=100');
+let currentPage = 1;
+const recordsPerPage = 100;
+
+async function loadData(page = 1) {
+    if (page < 1) return;
+    const response = await fetch(`/api/fetch?page=${page}&limit=${recordsPerPage}`);
     const tweets = await response.json();
-    populateTable(tweets);
+    if (tweets.length === 0 && page > 1) return; 
+    currentPage = page;
+    populateTable(tweets, "tweetTable");
 }
 
-function populateTable(tweets) {
-    const table = document.getElementById("tweetTable");
+function formatSentiment(s) {
+    if (s === "positive") return "😊 Positive";
+    if (s === "neutral") return "😐 Neutral";
+    if (s === "negative") return "😠 Negative";
+    return s || "";
+}
+
+function populateTable(tweets, tableId) {
+    const table = document.getElementById(tableId);
     table.innerHTML = "";
     tweets.forEach(tweet => {
         const row = table.insertRow();
         row.insertCell(0).innerText = tweet.Text || "";
-        row.insertCell(1).innerText = tweet.Sentiment || "";
+        row.insertCell(1).innerHTML = formatSentiment(tweet.Sentiment);
         row.insertCell(2).innerText = tweet.Timestamp || "";
     });
 }
@@ -111,8 +150,7 @@ async function loadWordCloudsBySentiment() {
             const url = URL.createObjectURL(blob);
             const section = document.createElement('div');
             section.className = "my-4";
-            section.innerHTML = `<h4>${sentiment.charAt(0).toUpperCase() + sentiment.slice(1)} Tweets</h4>
-                                 <img src="${url}" class="img-fluid"/>`;
+            section.innerHTML = `<h4>${sentiment.charAt(0).toUpperCase() + sentiment.slice(1)} Tweets</h4><img src="${url}" class="img-fluid"/>`;
             container.appendChild(section);
         }
     }
@@ -130,11 +168,29 @@ async function pushToMongo() {
     alert(`📦 ${resultData.message}`);
 }
 
-async function fetchFromMongo() {
-    const response = await fetch('/api/fetch');
-    const tweets = await response.json();
-    populateTable(tweets);
-    alert(`📥 Fetched ${tweets.length} records from MongoDB.`);
+async function fetchByBatch() {
+    const batch = document.getElementById('batchSelect').value;
+    if (!batch) return alert("Please select a batch.");
+    const response = await fetch('/api/fetch_batch', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ BatchTimestamp: batch })
+    });
+    const data = await response.json();
+    populateTable(data, "fetchBatchTable");
+}
+
+async function loadBatchOptions() {
+    const response = await fetch('/api/batches');
+    const batches = await response.json();
+    const select = document.getElementById('batchSelect');
+    select.innerHTML = '<option selected disabled>Select Batch Timestamp</option>';
+    batches.forEach(batch => {
+        const option = document.createElement('option');
+        option.value = batch;
+        option.innerText = batch;
+        select.appendChild(option);
+    });
 }
 
 function downloadCSV() {
@@ -156,12 +212,12 @@ document.querySelector('[data-bs-target="#chartTab"]').addEventListener('click',
     loadSentimentChart();
 });
 
-// Initial Load
+// Initial Loads
 loadData();
 loadWordCloudsBySentiment();
 loadSentimentChart();
+loadBatchOptions();
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
