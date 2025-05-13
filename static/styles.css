@@ -1,33 +1,33 @@
 body {
     background-color: #f7f9fc;
     font-family: 'Segoe UI', sans-serif;
-}
-h1, h2 {
-    margin-top: 20px;
+    transition: background-color 0.3s, color 0.3s;
     text-align: center;
 }
-.container {
-    margin-top: 30px;
-}
-.table {
-    background-color: white;
-}
-.search-input {
-    margin-bottom: 20px;
-}
-body { transition: background-color 0.3s, color 0.3s; }
-.dark-mode { background-color: #121212; color: #ffffff; }
-.feature-card {
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    padding: 20px;
-    margin: 20px 0;
-    background-color: #f8f9fa;
-}
-.dark-mode .feature-card { background-color: #1e1e1e; }
-.theme-toggle { position: fixed; top: 20px; right: 20px; }
-#lottie {
-    height: 120px;  /* Previously 200px */
-    margin: 0 auto 20px auto;
+
+#welcomeSection {
+    margin-top: 20px;
+    margin-bottom: 30px;
 }
 
+#lottie {
+    height: 200px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-tabs {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab-content {
+    text-align: left;
+}
+
+.fetched-data-header {
+    text-align: center;
+    margin-top: 30px;
+}
