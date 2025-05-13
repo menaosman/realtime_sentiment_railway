@@ -32,7 +32,18 @@
             path: "https://assets2.lottiefiles.com/packages/lf20_puciaact.json"
         });
     </script>
-  
+   <div class="mt-4">
+        <h5>👋 Welcome to the Tweet Sentiment Analyzer!</h5>
+        <ul>
+            <li>✅ Detect sentiment (positive, neutral, negative)</li>
+            <li>☁️ Generate WordClouds</li>
+            <li>📈 Track sentiment trends over time</li>
+            <li>🔍 Filter tweets by keywords</li>
+            <li>📦 Push to MongoDB Atlas</li>
+            <li>📤 Upload to MongoDB</li>
+        </ul>
+    </div>
+
     <ul class="nav nav-tabs mt-3" id="mainTabs" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tableTab">📋 Tweets Table</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#chartTab">📈 Visual Analytics</button></li>
@@ -56,17 +67,25 @@
             </div>
         </div>
 
-        <!-- Visual Analytics Tab -->
-        <div class="tab-pane fade" id="chartTab">
-           <h4 class="text-center">📈 Sentiment Visual Analytics</h4>
-    <canvas id="sentimentChart" style="max-height:400px;"></canvas>
+       <!-- Visual Analytics Tab -->
+<!-- Visual Analytics Tab -->
+<div class="tab-pane fade text-center" id="chartTab">
+    <h4 class="text-center mt-4">📈 Sentiment Visual Analytics</h4>
+    <div class="d-flex justify-content-center mb-5">
+        <canvas id="sentimentChart" style="max-width:600px; max-height:400px; width:100%; height:auto;"></canvas>
+    </div>
 
-    <h5 class="mt-5 text-center">📅 Sentiment Over Time</h5>
-    <canvas id="sentimentOverTimeChart" style="max-height:400px;"></canvas>
+    <h5 class="text-center">📅 Sentiment Over Time</h5>
+    <div class="d-flex justify-content-center mb-5">
+        <canvas id="sentimentOverTimeChart" style="max-width:600px; max-height:400px; width:100%; height:auto;"></canvas>
+    </div>
 
-    <h5 class="mt-5 text-center">📊 Sentiment Bar Chart</h5>
-    <canvas id="sentimentBarChart" style="max-height:400px;"></canvas>
-        </div>
+    <h5 class="text-center">📊 Sentiment Bar Chart</h5>
+    <div class="d-flex justify-content-center mb-5">
+        <canvas id="sentimentBarChart" style="max-width:600px; max-height:400px; width:100%; height:auto;"></canvas>
+    </div>
+</div>
+
 
         <!-- WordCloud Tab -->
         <div class="tab-pane fade text-center" id="wordTab">
