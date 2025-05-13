@@ -5,6 +5,27 @@
     margin-bottom: 30px;
 }
 
+/* Center Header Title and Animation */
+#headerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Space between title and animation */
+    flex-wrap: wrap; /* Stack on smaller screens */
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#headerContainer h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+#headerContainer #lottie {
+    max-width: 300px;
+    height: auto;
+}
+
 /* Navigation Tabs Styling */
 .nav-tabs .nav-link {
     font-size: 1rem;
@@ -49,16 +70,17 @@ canvas {
     color: #ffffff;
     border-color: #444444;
 }
+
 body, .table, #search, .nav-tabs .nav-link {
     transition: background-color 0.3s, color 0.3s;
 }
+
 .nav-tabs .nav-link.active {
     background-color: #0d6efd;
     color: #ffffff !important;
     border-radius: 8px;
 }
+
 .tab-content {
     margin-top: 20px;
 }
-
-
