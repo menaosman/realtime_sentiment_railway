@@ -1,5 +1,6 @@
 # Use an official lightweight Python image
-FROM python:3.10-slim
+FROM python:3.10-alpine
+
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -7,6 +8,8 @@ ENV PYTHONUNBUFFERED 1
 
 # Set work directory
 WORKDIR /app
+
+RUN apk add --no-cache build-base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
