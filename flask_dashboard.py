@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 
 # MongoDB Configuration
-mongo_uri = os.getenv("MONGO_URI", "your_mongo_uri_here")  # Add your default URI or keep it from environment
+mongo_uri = os.getenv("MONGO_URI")  # Add your default URI or keep it from environment
 client = MongoClient(mongo_uri, tls=True, tlsAllowInvalidCertificates=True)
 collection = client["sentiment_analysis"]["tweets"]
 
