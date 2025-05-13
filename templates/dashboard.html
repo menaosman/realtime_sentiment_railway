@@ -57,7 +57,14 @@
 
         <!-- Visual Analytics Tab -->
         <div class="tab-pane fade" id="chartTab">
-            <canvas id="sentimentChart" style="max-height:400px;"></canvas>
+           <h4 class="text-center">📈 Sentiment Visual Analytics</h4>
+    <canvas id="sentimentChart" style="max-height:400px;"></canvas>
+
+    <h5 class="mt-5 text-center">📅 Sentiment Over Time</h5>
+    <canvas id="sentimentOverTimeChart" style="max-height:400px;"></canvas>
+
+    <h5 class="mt-5 text-center">📊 Sentiment Bar Chart</h5>
+    <canvas id="sentimentBarChart" style="max-height:400px;"></canvas>
         </div>
 
         <!-- WordCloud Tab -->
@@ -125,19 +132,69 @@ function populateTable(tweets, tableId) {
     });
 }
 
-async function loadSentimentChart() {
+async function loadSentimentCharts() {
     const response = await fetch('/api/sentiment_distribution');
     const data = await response.json();
-    const ctx = document.getElementById('sentimentChart').getContext('2d');
+
+    const ctx1 = document.getElementById('sentimentChart').getContext('2d');
     if (window.sentimentChart) window.sentimentChart.destroy();
-    window.sentimentChart = new Chart(ctx, {
+    window.sentimentChart = new Chart(ctx1, {
         type: 'doughnut',
         data: {
             labels: Object.keys(data),
-            datasets: [{ data: Object.values(data), backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
+            datasets: [{ 
+                data: Object.values(data),
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+
+    // Sentiment Over Time (Simulated Example)
+    const ctx2 = document.getElementById('sentimentOverTimeChart').getContext('2d');
+    if (window.sentimentOverTimeChart) window.sentimentOverTimeChart.destroy();
+    window.sentimentOverTimeChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],  // Replace with actual dates if available
+            datasets: [{
+                label: 'Positive',
+                data: [5, 7, 6, 8, 10],
+                borderColor: '#28a745',
+                fill: false
+            }, {
+                label: 'Neutral',
+                data: [3, 4, 3, 5, 4],
+                borderColor: '#ffc107',
+                fill: false
+            }, {
+                label: 'Negative',
+                data: [2, 3, 4, 2, 1],
+                borderColor: '#dc3545',
+                fill: false
+            }]
+        }
+    });
+
+    // Sentiment Bar Chart
+    const ctx3 = document.getElementById('sentimentBarChart').getContext('2d');
+    if (window.sentimentBarChart) window.sentimentBarChart.destroy();
+    window.sentimentBarChart = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(data),
+            datasets: [{
+                label: 'Sentiment Count',
+                data: Object.values(data),
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
         }
     });
 }
+
+// Trigger when the tab is clicked
+document.querySelector('[data-bs-target="#chartTab"]').addEventListener('click', function () {
+    loadSentimentCharts();
+});
 
 async function loadWordCloudsBySentiment() {
     const sentiments = ["positive", "neutral", "negative"];
